@@ -6,6 +6,7 @@ PLAYLIST = 'playlist'
 ALBUM = 'album'
 PREFIX = 'subidy'
 ROOT = 'root'
+SEARCH = 'search'
 
 ROOT_URI = '%s:%s' % (PREFIX, ROOT)
 
@@ -16,6 +17,9 @@ def is_type_result_valid(result):
 
 def is_id_result_valid(result, type):
     return is_type_result_valid(result) and result.group(1) == PREFIX and result.group(2) == type
+
+def is_uri(uri):
+    return regex.match(uri) is not None
 
 def get_song_id(uri):
     result = regex.match(uri)
@@ -58,3 +62,9 @@ def get_album_uri(id):
 
 def get_song_uri(id):
     return get_type_uri(SONG, id)
+
+def get_playlist_uri(id):
+    return get_type_uri(PLAYLIST, id)
+
+def get_search_uri(query):
+    return get_type_uri(SEARCH, query)

@@ -2,7 +2,7 @@ from urlparse import urlparse
 import libsonic
 import logging
 import itertools
-from mopidy.models import Track, Album, Artist, Playlist, Ref
+from mopidy.models import Track, Album, Artist, Playlist, Ref, SearchResult
 from mopidy_subidy import uri
 
 logger = logging.getLogger(__name__)
@@ -41,32 +41,24 @@ class SubsonicApi():
         template = '%s/stream.view?id=%s&u=%s&p=%s&c=mopidy&v=1.14'
         return template % (self.url, song_id, self.username, self.password)
 
-    def find_artists_by_name(self, artist_name):
-        response = self.connection.search3(artist_name, MAX_SEARCH_RESULTS, 0, 0, 0, 0, 0)
+    def find_raw(self, query, exclude_artists=False, exclude_albums=False, exclude_songs=False):
+        response = self.connection.search2(
+            query.encode('utf-8'),
+            MAX_SEARCH_RESULTS if not exclude_artists else 0, 0,
+            MAX_SEARCH_RESULTS if not exclude_albums else 0, 0,
+            MAX_SEARCH_RESULTS if not exclude_songs else 0, 0)
         if response.get('status') != RESPONSE_OK:
             return None
-        artists = response.get('searchResult3').get('artist')
-        if artists is not None:
-            return [self.raw_artist_to_artist(artist) for artist in artists]
-        return None
+        return response.get('searchResult2')
 
-    def find_tracks_by_name(self, track_name):
-        response = self.connection.search3(track_name, 0, 0, 0, 0, MAX_SEARCH_RESULTS, 0)
-        if response.get('status') != RESPONSE_OK:
-            return None
-        tracks = response.get('searchResult3').get('song')
-        if tracks is not None:
-            return [self.raw_song_to_track(track) for track in tracks]
-        return None
+    def find_as_search_result(self, query, exclude_artists=False, exclude_albums=False, exclude_songs=False):
+        result = self.find_raw(query)
+        return SearchResult(
+            uri=uri.get_search_uri(query),
+            artists=[self.raw_artist_to_artist(artist) for artist in result.get('artist') or []],
+            albums=[self.raw_album_to_album(album) for album in result.get('album') or []],
+            tracks=[self.raw_song_to_track(song) for song in result.get('song') or []])
 
-    def find_albums_by_name(self, album_name):
-        response = self.connection.search3(album_name, 0, 0, MAX_SEARCH_RESULTS, 0, 0, 0)
-        if response.get('status') != RESPONSE_OK:
-            return None
-        albums = response.get('searchResult3').get('album')
-        if albums is not None:
-            return [self.raw_album_to_album(album) for album in albums]
-        return None
 
     def get_raw_artists(self):
         response = self.connection.getIndexes()
@@ -74,26 +66,39 @@ class SubsonicApi():
             return None
         letters = response.get('indexes').get('index')
         if letters is not None:
-            return [artist for letter in letters for artist in letter.get('artist')]
+            artists = [artist for letter in letters for artist in letter.get('artist')]
+            return artists
         return None
 
-    def find_song_by_id(self, song_id):
+    def get_song_by_id(self, song_id):
         response = self.connection.getSong(song_id)
         if response.get('status') != RESPONSE_OK:
             return None
         return self.raw_song_to_track(response.get('song')) if response.get('song') is not None else None
 
-    def find_album_by_id(self, album_id):
+    def get_album_by_id(self, album_id):
         response = self.connection.getAlbum(album_id)
         if response.get('status') != RESPONSE_OK:
             return None
         return self.raw_album_to_album(response.get('album')) if response.get('album') is not None else None
 
-    def find_artist_by_id(self, artist_id):
+    def get_artist_by_id(self, artist_id):
         response = self.connection.getArtist(artist_id)
         if response.get('status') != RESPONSE_OK:
             return None
         return self.raw_artist_to_artist(response.get('artist')) if response.get('artist') is not None else None
+
+    def get_raw_playlists(self):
+        response = self.connection.getPlaylists()
+        if response.get('status') != RESPONSE_OK:
+            return None
+        return response.get('playlists').get('playlist')
+
+    def get_raw_playlist(self, playlist_id):
+        response = self.connection.getPlaylist(playlist_id)
+        if response.get('status') != RESPONSE_OK:
+            return None
+        return response.get('playlist')
 
     def get_raw_dir(self, parent_id):
         response = self.connection.getMusicDirectory(parent_id)
@@ -111,34 +116,42 @@ class SubsonicApi():
         return self.get_raw_dir(album_id)
 
     def get_albums_as_refs(self, artist_id):
-        return sorted([self.raw_album_to_ref(album) for album in self.get_raw_albums(artist_id)], key=ref_sort_key)
+        return [self.raw_album_to_ref(album) for album in self.get_raw_albums(artist_id)]
 
     def get_albums_as_albums(self, artist_id):
-        return sorted([self.raw_album_to_album(album) for album in self.get_raw_albums(artist_id)], key=ref_sort_key)
+        return [self.raw_album_to_album(album) for album in self.get_raw_albums(artist_id)]
 
     def get_songs_as_refs(self, album_id):
-        return sorted([self.raw_song_to_ref(song) for song in self.get_raw_songs(album_id)], key=ref_sort_key)
+        return [self.raw_song_to_ref(song) for song in self.get_raw_songs(album_id)]
 
     def get_songs_as_tracks(self, album_id):
-        return sorted([self.raw_song_to_track(song) for song in self.get_raw_songs(album_id)], key=ref_sort_key)
+        return [self.raw_song_to_track(song) for song in self.get_raw_songs(album_id)]
 
     def get_artists_as_refs(self):
-        return sorted([self.raw_artist_to_ref(artist) for artist in self.get_raw_artists()], key=ref_sort_key)
+        return [self.raw_artist_to_ref(artist) for artist in self.get_raw_artists()]
 
     def get_artists_as_artists(self):
-        return sorted([self.raw_artist_to_artist(artist) for artist in self.get_raw_artists()], key=lambda artist:artist.name)
+        return [self.raw_artist_to_artist(artist) for artist in self.get_raw_artists()]
+
+    def get_playlists_as_refs(self):
+        return [self.raw_playlist_to_ref(playlist) for playlist in self.get_raw_playlists()]
+
+    def get_playlists_as_playlists(self):
+        return [self.raw_playlist_to_playlist(playlist) for playlist in self.get_raw_playlists()]
+
+    def get_playlist_as_playlist(self, playlist_id):
+        return self.raw_playlist_to_playlist(self.get_raw_playlist(playlist_id))
+
+    def get_playlist_as_songs_as_refs(self, playlist_id):
+        playlist = self.get_raw_playlist(playlist_id)
+        return [self.raw_song_to_ref(song) for song in playlist.get('entry')]
 
     def raw_song_to_ref(self, song):
-        return Ref(
+        return Ref.track(
             name=song.get('title') or UNKNOWN_SONG,
-            uri=uri.get_song_uri(song.get('id')),
-            type=Ref.TRACK)
+            uri=uri.get_song_uri(song.get('id')))
 
     def raw_song_to_track(self, song):
-        album_name = song.get('album')
-        album = self.find_albums_by_name(album_name)[0] if album_name is not None else None
-        artist_name = song.get('artist')
-        artist = self.find_artists_by_name(artist_name)[0] if artist_name is not None else None
         return Track(
             name=song.get('title') or UNKNOWN_SONG,
             uri=uri.get_song_uri(song.get('id')),
@@ -148,32 +161,44 @@ class SubsonicApi():
             genre=song.get('genre'),
             length=int(song.get('duration')) * 1000 if song.get('duration') else None,
             disc_no=int(song.get('discNumber')) if song.get('discNumber') else None,
-            artists=[artist] if artist is not None else None,
-            album=album
-        )
+            artists=[Artist(
+                name=song.get('artist'),
+                uri=uri.get_artist_uri(song.get('artistId')))],
+            album=Album(
+                name=song.get('album'),
+                uri=uri.get_album_uri('albumId')))
     def raw_album_to_ref(self, album):
-        return Ref(
+        return Ref.album(
             name=album.get('title') or album.get('name') or UNKNOWN_ALBUM,
-            uri=uri.get_album_uri(album.get('id')),
-            type=Ref.ALBUM)
+            uri=uri.get_album_uri(album.get('id')))
 
     def raw_album_to_album(self, album):
-        artist_name = album.get('artist')
-        artist = self.find_artists_by_name(artist_name)[0] if artist_name is not None else None
         return Album(
             name=album.get('title') or album.get('name') or UNKNOWN_ALBUM,
             uri=uri.get_album_uri(album.get('id')),
-            artists=[artist]
-        )
+            artists=[Artist(
+                name=album.get('artist'),
+                uri=uri.get_artist_uri(album.get('artistId')))])
 
     def raw_artist_to_ref(self, artist):
-        return Ref(
+        return Ref.artist(
             name=artist.get('name') or UNKNOWN_ARTIST,
-            uri=uri.get_artist_uri(artist.get('id')),
-            type=Ref.ARTIST)
+            uri=uri.get_artist_uri(artist.get('id')))
 
     def raw_artist_to_artist(self, artist):
         return Artist(
             name=artist.get('name') or UNKNOWN_ARTIST,
-            uri=uri.get_artist_uri(artist.get('id'))
-        )
+            uri=uri.get_artist_uri(artist.get('id')))
+
+    def raw_playlist_to_playlist(self, playlist):
+        entries = playlist.get('entry')
+        tracks = [self.raw_song_to_track(song) for song in entries] if entries is not None else None
+        return Playlist(
+            uri=uri.get_playlist_uri(playlist.get('id')),
+            name=playlist.get('name'),
+            tracks=tracks)
+
+    def raw_playlist_to_ref(self, playlist):
+        return Ref.playlist(
+            uri=uri.get_playlist_uri(playlist.get('id')),
+            name=playlist.get('name'))

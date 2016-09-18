@@ -12,5 +12,5 @@ class SubidyBackend(pykka.ThreadingActor, backend.Backend):
             password=subidy_config['password'])
         self.library = library.SubidyLibraryProvider(backend=self)
         self.playback = playback.SubidyPlaybackProvider(audio=audio, backend=self)
-        #self.playlists = playlists.SubidyPlaylistsProvider(backend=self)
+        self.playlists = playlists.SubidyPlaylistsProvider(backend=self)
         self.uri_schemes = ['subidy']

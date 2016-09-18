@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import re
-from setuptools import setup, find_packages
+from setuptools import setup, get_packages
 
 
 def get_version(filename):
@@ -18,7 +18,7 @@ setup(
     author_email='fgnodtke@cronosx.de',
     description='Improved Subsonic extension for Mopidy',
     long_description=open('README.md').read(),
-    packages=find_packages(exclude=['tests', 'tests.*']),
+    packages=get_packages(exclude=['tests', 'tests.*']),
     zip_safe=False,
     include_package_data=True,
     install_requires=[
