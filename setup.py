@@ -13,8 +13,8 @@ setup(
     name='Mopidy-Subidy',
     version=get_version('mopidy_subidy/__init__.py'),
     url='http://github.com/prior99/mopidy-subidy/',
-    license='MIT',
-    author='ptiot99',
+    license='BSD-3-Clause',
+    author='prior99',
     author_email='fgnodtke@cronosx.de',
     description='Improved Subsonic extension for Mopidy',
     long_description=open('README.md').read(),
@@ -35,7 +35,7 @@ setup(
     classifiers=[
         'Environment :: No Input/Output (Daemon)',
         'Intended Audience :: End Users/Desktop',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: BSD 3-Clause',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2',
         'Topic :: Multimedia :: Sound/Audio :: Players'
