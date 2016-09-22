@@ -74,6 +74,11 @@ class SubidyLibraryProvider(backend.LibraryProvider):
                 return SearchResult(tracks=[song])
         return None
 
+    def search_by_artist_album_and_track(self, artist_name, album_name, track_name):
+        tracks = self.search_by_artist_and_album(artist_name, album_name)
+        track = next(item for item in tracks.tracks if track_name in item.name)
+        return SearchResult(tracks=[track])
+
     def search_by_artist_and_album(self, artist_name, album_name):
         artists = self.subsonic_api.get_raw_artists()
         artist = next(item for item in artists if artist_name in item.get('name'))
@@ -95,6 +100,8 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             return [artist.name for artist in search_result.artists]
 
     def search(self, query=None, uris=None, exact=False):
+        if 'artist' in query and 'album' in query and 'track_name' in query:
+            return self.search_by_artist_album_and_track(query.get('artist')[0], query.get('album')[0], query.get('track_name')[0])
         if 'artist' in query and 'album' in query:
             return self.search_by_artist_and_album(query.get('artist')[0], query.get('album')[0])
         if 'artist' in query:
