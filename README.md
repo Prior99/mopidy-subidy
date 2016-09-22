@@ -27,7 +27,7 @@ The following things are supported:
 The following things are **not** supported:
 
   * Creating, editing and deleting playlists
-  * Searching explicitly for artists, albums, tracks, etc.
+  * Advanced searching. This means everything except 'any', 'artist', 'artist' and 'album'
   * Subsonics smart playlists
 
 ## Contributors
