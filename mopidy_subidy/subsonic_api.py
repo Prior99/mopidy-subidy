@@ -191,14 +191,20 @@ class SubsonicApi():
 
     def get_playlist_as_songs_as_refs(self, playlist_id):
         playlist = self.get_raw_playlist(playlist_id)
+        if playlist is None:
+            return None
         return [self.raw_song_to_ref(song) for song in playlist.get('entry')]
 
     def raw_song_to_ref(self, song):
+        if song is None:
+            return None
         return Ref.track(
             name=song.get('title') or UNKNOWN_SONG,
             uri=uri.get_song_uri(song.get('id')))
 
     def raw_song_to_track(self, song):
+        if song is None:
+            return None
         return Track(
             name=song.get('title') or UNKNOWN_SONG,
             uri=uri.get_song_uri(song.get('id')),
@@ -214,12 +220,17 @@ class SubsonicApi():
             album=Album(
                 name=song.get('album'),
                 uri=uri.get_album_uri('albumId')))
+
     def raw_album_to_ref(self, album):
+        if album is None:
+            return None
         return Ref.album(
             name=album.get('title') or album.get('name') or UNKNOWN_ALBUM,
             uri=uri.get_album_uri(album.get('id')))
 
     def raw_album_to_album(self, album):
+        if album is None:
+            return None
         return Album(
             name=album.get('title') or album.get('name') or UNKNOWN_ALBUM,
             uri=uri.get_album_uri(album.get('id')),
@@ -228,16 +239,22 @@ class SubsonicApi():
                 uri=uri.get_artist_uri(album.get('artistId')))])
 
     def raw_artist_to_ref(self, artist):
+        if artist is None:
+            return None
         return Ref.artist(
             name=artist.get('name') or UNKNOWN_ARTIST,
             uri=uri.get_artist_uri(artist.get('id')))
 
     def raw_artist_to_artist(self, artist):
+        if artist is None:
+            return None
         return Artist(
             name=artist.get('name') or UNKNOWN_ARTIST,
             uri=uri.get_artist_uri(artist.get('id')))
 
     def raw_playlist_to_playlist(self, playlist):
+        if playlist is None:
+            return None
         entries = playlist.get('entry')
         tracks = [self.raw_song_to_track(song) for song in entries] if entries is not None else None
         return Playlist(
@@ -246,6 +263,8 @@ class SubsonicApi():
             tracks=tracks)
 
     def raw_playlist_to_ref(self, playlist):
+        if playlist is None:
+            return None
         return Ref.playlist(
             uri=uri.get_playlist_uri(playlist.get('id')),
             name=playlist.get('name'))
