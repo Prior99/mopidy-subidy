@@ -41,6 +41,10 @@ class SubsonicApi():
         template = '%s/stream.view?id=%s&u=%s&p=%s&c=mopidy&v=1.14'
         return template % (self.url, song_id, self.username, self.password)
 
+    def get_censored_song_stream_uri(self, song_id):
+        template = '%s/stream.view?id=%s&u=******&p=******&c=mopidy&v=1.14'
+        return template % (self.url, song_id)
+
     def find_raw(self, query, exclude_artists=False, exclude_albums=False, exclude_songs=False):
         try:
             response = self.connection.search2(
