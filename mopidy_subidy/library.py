@@ -21,6 +21,12 @@ class SubidyLibraryProvider(backend.LibraryProvider):
     def browse_artists(self):
         return self.subsonic_api.get_artists_as_refs()
 
+    def browse_rootdirs(self):
+        return self.subsonic_api.get_rootdirs_as_refs()
+
+    def browse_diritems(self, directory_id):
+        return self.subsonic_api.get_diritems_as_refs(directory_id)
+
     def lookup_song(self, song_id):
         return self.subsonic_api.get_song_by_id(song_id)
 
@@ -31,13 +37,10 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return self.subsonic_api.get_artist_by_id(artist_id)
 
     def browse(self, browse_uri):
-        type = uri.get_type(browse_uri)
         if browse_uri == uri.ROOT_URI:
-            return self.browse_artists()
-        if type == uri.ARTIST:
-            return self.browse_albums(uri.get_artist_id(browse_uri))
-        if type == uri.ALBUM:
-            return self.browse_songs(uri.get_album_id(browse_uri))
+            return self.browse_rootdirs()
+        else:
+            return self.browse_diritems(uri.get_directory_id(browse_uri))
 
     def lookup_one(self, lookup_uri):
         type = uri.get_type(lookup_uri)

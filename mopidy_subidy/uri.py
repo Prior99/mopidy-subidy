@@ -4,6 +4,7 @@ SONG = 'song'
 ARTIST = 'artist'
 PLAYLIST = 'playlist'
 ALBUM = 'album'
+DIRECTORY='directory'
 PREFIX = 'subidy'
 ROOT = 'root'
 SEARCH = 'search'
@@ -45,6 +46,12 @@ def get_album_id(uri):
         return None
     return result.group(3)
 
+def get_directory_id(uri):
+    result = regex.match(uri)
+    if not is_id_result_valid(result, DIRECTORY):
+        return None
+    return result.group(3)
+
 def get_type(uri):
     result = regex.match(uri)
     if not is_type_result_valid(result):
@@ -62,6 +69,9 @@ def get_album_uri(id):
 
 def get_song_uri(id):
     return get_type_uri(SONG, id)
+
+def get_directory_uri(id):
+    return get_type_uri(DIRECTORY, id)
 
 def get_playlist_uri(id):
     return get_type_uri(PLAYLIST, id)

@@ -90,12 +90,27 @@ class SubsonicApi():
             albums=[self.raw_album_to_album(album) for album in result.get('album') or []],
             tracks=[self.raw_song_to_track(song) for song in result.get('song') or []])
 
-
     def get_raw_artists(self):
+        try:
+            response = self.connection.getArtists()
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when loading list of artists.')
+            return []
+        if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
+            return []
+        letters = response.get('artists').get('index')
+        if letters is not None:
+            artists = [artist for letter in letters for artist in letter.get('artist') or []]
+            return artists
+        logger.warning('Subsonic does not seem to have any artists in it\'s library.')
+        return []
+
+    def get_raw_rootdirs(self):
         try:
             response = self.connection.getIndexes()
         except Exception as e:
-            logger.warning('Connecting to subsonic failed when loading list of artists.')
+            logger.warning('Connecting to subsonic failed when loading list of rootdirs.')
             return []
         if response.get('status') != RESPONSE_OK:
             logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
@@ -104,7 +119,7 @@ class SubsonicApi():
         if letters is not None:
             artists = [artist for letter in letters for artist in letter.get('artist') or []]
             return artists
-        logger.warning('Subsonic does not seem to have any artists in it\'s library.')
+        logger.warning('Subsonic does not seem to have any rootdirs in its library.')
         return []
 
     def get_song_by_id(self, song_id):
@@ -202,6 +217,12 @@ class SubsonicApi():
     def get_artists_as_refs(self):
         return [self.raw_artist_to_ref(artist) for artist in self.get_raw_artists()]
 
+    def get_rootdirs_as_refs(self):
+        return [self.raw_directory_to_ref(rootdir) for rootdir in self.get_raw_rootdirs()]
+
+    def get_diritems_as_refs(self, directory_id):
+        return [(self.raw_directory_to_ref(diritem) if diritem.get('isDir') else self.raw_song_to_ref(diritem)) for diritem in self.get_raw_dir(directory_id)]
+
     def get_artists_as_artists(self):
         return [self.raw_artist_to_artist(artist) for artist in self.get_raw_artists()]
 
@@ -262,6 +283,13 @@ class SubsonicApi():
             artists=[Artist(
                 name=album.get('artist'),
                 uri=uri.get_artist_uri(album.get('artistId')))])
+
+    def raw_directory_to_ref(self, directory):
+        if directory is None:
+            return None
+        return Ref.directory(
+            name=directory.get('title') or directory.get('name'),
+            uri=uri.get_directory_uri(directory.get('id')))
 
     def raw_artist_to_ref(self, artist):
         if artist is None:
