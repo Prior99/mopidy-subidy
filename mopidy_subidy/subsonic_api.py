@@ -223,7 +223,7 @@ class SubsonicApi():
                 uri=uri.get_artist_uri(song.get('artistId')))],
             album=Album(
                 name=song.get('album'),
-                uri=uri.get_album_uri('albumId')))
+                uri=uri.get_album_uri(song.get('albumId'))))
 
     def raw_album_to_ref(self, album):
         if album is None:
