@@ -100,6 +100,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             return self.lookup_directory(uri.get_directory_id(lookup_uri))
         if type == uri.SONG:
             return [self.lookup_song(uri.get_song_id(lookup_uri))]
+        # TODO: uri.PLAYLIST
 
     def lookup(self, uri=None, uris=None):
         if uris is not None:
