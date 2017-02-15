@@ -62,7 +62,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return self.subsonic_api.get_songs_as_tracks(album_id)
 
     def lookup_artist(self, artist_id):
-        return self.subsonic_api.get_artist_songs_as_tracks(artist_id)
+        return self.subsonic_api.get_artist_as_songs_as_tracks(artist_id)
 
     def lookup_directory(self, directory_id):
         return self.subsonic_api.get_diritems_as_tracks(directory_id)
