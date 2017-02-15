@@ -271,6 +271,9 @@ class SubsonicApi():
     def get_diritems_as_refs(self, directory_id):
         return [(self.raw_directory_to_ref(diritem) if diritem.get('isDir') else self.raw_song_to_ref(diritem)) for diritem in self.get_raw_dir(directory_id)]
 
+    def get_diritems_as_tracks(self, directory_id):
+        return [self.raw_song_to_track(diritem) for diritem in self.get_raw_dir(directory_id) if not diritem.get('isDir')]
+
     def get_artists_as_artists(self):
         return [self.raw_artist_to_artist(artist) for artist in self.get_raw_artists()]
 
