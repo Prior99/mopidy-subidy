@@ -197,7 +197,18 @@ class SubsonicApi():
         return None
 
     def get_raw_albums(self, artist_id):
-        return self.get_raw_dir(artist_id)
+        try:
+            response = self.connection.getArtist(artist_id)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when loading list of albums.')
+            return []
+        if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
+            return []
+        albums = response.get('artist').get('album')
+        if albums is not None:
+            return albums
+        return []
 
     def get_raw_songs(self, album_id):
         try:
