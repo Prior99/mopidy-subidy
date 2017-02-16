@@ -271,9 +271,6 @@ class SubsonicApi():
     def get_diritems_as_refs(self, directory_id):
         return [(self.raw_directory_to_ref(diritem) if diritem.get('isDir') else self.raw_song_to_ref(diritem)) for diritem in self.get_raw_dir(directory_id)]
 
-    def get_diritems_as_tracks(self, directory_id):
-        return [self.raw_song_to_track(diritem) for diritem in self.get_raw_dir(directory_id) if not diritem.get('isDir')]
-
     def get_artists_as_artists(self):
         return [self.raw_artist_to_artist(artist) for artist in self.get_raw_artists()]
 
@@ -292,11 +289,24 @@ class SubsonicApi():
             return None
         return [self.raw_song_to_ref(song) for song in playlist.get('entry')]
 
-    def get_artist_as_songs_as_tracks(self, artist_id):
+    def get_artist_as_songs_as_tracks_iter(self, artist_id):
         albums = self.get_raw_albums(artist_id)
         if albums is None:
-            return None
-        return [self.raw_song_to_track(song) for album in albums for song in self.get_raw_songs(album.get('id'))]
+            return
+        for album in albums:
+            for song in self.get_raw_songs(album.get('id')):
+                yield self.raw_song_to_track(song)
+
+    def get_recursive_dir_as_songs_as_tracks_iter(self, directory_id):
+        diritems = self.get_raw_dir(directory_id)
+        if diritems is None:
+            return
+        for item in diritems:
+            if item.get('isDir'):
+                for song in self.get_recursive_dir_as_songs_as_tracks_iter(item.get('id')):
+                    yield song
+            else:
+                yield self.raw_song_to_track(item)
 
     def raw_song_to_ref(self, song):
         if song is None:
