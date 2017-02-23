@@ -74,8 +74,39 @@ class SubidyLibraryProvider(backend.LibraryProvider):
                 return SearchResult(tracks=[song])
         return None
 
+    def search_by_artist_album_and_track(self, artist_name, album_name, track_name):
+        tracks = self.search_by_artist_and_album(artist_name, album_name)
+        track = next(item for item in tracks.tracks if track_name in item.name)
+        return SearchResult(tracks=[track])
+
+    def search_by_artist_and_album(self, artist_name, album_name):
+        artists = self.subsonic_api.get_raw_artists()
+        artist = next(item for item in artists if artist_name in item.get('name'))
+        albums = self.subsonic_api.get_raw_albums(artist.get('id'))
+        album = next(item for item in albums if album_name in item.get('title'))
+        return SearchResult(tracks=self.subsonic_api.get_songs_as_tracks(album.get('id')))
+
+    def get_distinct(self, field, query):
+        search_result = self.search(query)
+        if not search_result:
+            return []
+        if field == 'track' or field == 'title':
+            return [track.name for track in (search_result.tracks or [])]
+        if field == 'album':
+            return [album.name for album in (search_result.albums or [])]
+        if field == 'artist':
+            if not search_result.artists:
+                return [artist.name for artist in self.browse_artists()]
+            return [artist.name for artist in search_result.artists]
+
     def search(self, query=None, uris=None, exact=False):
-        if 'uri' in query:
-            return self.search_uri(query.get('uri')[0])
+        if 'artist' in query and 'album' in query and 'track_name' in query:
+            return self.search_by_artist_album_and_track(query.get('artist')[0], query.get('album')[0], query.get('track_name')[0])
+        if 'artist' in query and 'album' in query:
+            return self.search_by_artist_and_album(query.get('artist')[0], query.get('album')[0])
+        if 'artist' in query:
+            return self.subsonic_api.find_as_search_result(query.get('artist')[0])
         if 'any' in query:
             return self.subsonic_api.find_as_search_result(query.get('any')[0])
+        return SearchResult(artists=self.subsonic_api.get_artists_as_artists())
+
