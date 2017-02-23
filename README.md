@@ -12,7 +12,7 @@ enabled=True
 url=https://path.to/your/subsonic/server
 username=subsonic_username
 password=your_secret_password
-legacy_auth = (optional; setting to yes may solve some connection errors)
+legacy_auth=(optional; setting to yes may solve some connection errors)
 ```
 
 ## State of this plugin
