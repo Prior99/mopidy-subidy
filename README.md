@@ -23,12 +23,14 @@ The following things are supported:
  * Browsing all artists/albums/tracks
  * Searching for any terms
  * Browsing playlists
+ * Searching explicitly for one of: artists, albums, tracks
 
 The following things are **not** supported:
 
   * Creating, editing and deleting playlists
-  * Advanced searching. This means everything except 'any', 'artist', 'artist' and 'album'
   * Subsonics smart playlists
+  * Searching for a combination of filters (artist and album, artist and track, etc.)
+  * Browsing more than 2 levels deep in the Subsonic directory tree
 
 ## Contributors
 

@@ -41,18 +41,29 @@ class SubsonicApi():
         template = '%s/stream.view?id=%s&u=%s&p=%s&c=mopidy&v=1.14'
         return template % (self.url, song_id, self.username, self.password)
 
+    def get_censored_song_stream_uri(self, song_id):
+        template = '%s/stream.view?id=%s&u=******&p=******&c=mopidy&v=1.14'
+        return template % (self.url, song_id)
+
     def find_raw(self, query, exclude_artists=False, exclude_albums=False, exclude_songs=False):
-        response = self.connection.search2(
-            query.encode('utf-8'),
-            MAX_SEARCH_RESULTS if not exclude_artists else 0, 0,
-            MAX_SEARCH_RESULTS if not exclude_albums else 0, 0,
-            MAX_SEARCH_RESULTS if not exclude_songs else 0, 0)
+        try:
+            response = self.connection.search2(
+                query.encode('utf-8'),
+                MAX_SEARCH_RESULTS if not exclude_artists else 0, 0,
+                MAX_SEARCH_RESULTS if not exclude_albums else 0, 0,
+                MAX_SEARCH_RESULTS if not exclude_songs else 0, 0)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when searching.')
+            return None
         if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
             return None
         return response.get('searchResult2')
 
     def find_as_search_result(self, query, exclude_artists=False, exclude_albums=False, exclude_songs=False):
         result = self.find_raw(query)
+        if result is None:
+            return None
         return SearchResult(
             uri=uri.get_search_uri(query),
             artists=[self.raw_artist_to_artist(artist) for artist in result.get('artist') or []],
@@ -61,48 +72,88 @@ class SubsonicApi():
 
 
     def get_raw_artists(self):
-        response = self.connection.getIndexes()
+        try:
+            response = self.connection.getIndexes()
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when loading list of artists.')
+            return []
         if response.get('status') != RESPONSE_OK:
-            return None
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
+            return []
         letters = response.get('indexes').get('index')
         if letters is not None:
-            artists = [artist for letter in letters for artist in letter.get('artist')]
+            artists = [artist for letter in letters for artist in letter.get('artist') or []]
             return artists
-        return None
+        logger.warning('Subsonic does not seem to have any artists in it\'s library.')
+        return []
 
     def get_song_by_id(self, song_id):
-        response = self.connection.getSong(song_id)
+        try:
+            response = self.connection.getSong(song_id)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when loading song by id.')
+            return None
         if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
             return None
         return self.raw_song_to_track(response.get('song')) if response.get('song') is not None else None
 
     def get_album_by_id(self, album_id):
-        response = self.connection.getAlbum(album_id)
+        try:
+            response = self.connection.getAlbum(album_id)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when loading album by id.')
+            return None
         if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
             return None
         return self.raw_album_to_album(response.get('album')) if response.get('album') is not None else None
 
     def get_artist_by_id(self, artist_id):
-        response = self.connection.getArtist(artist_id)
+        try:
+            response = self.connection.getArtist(artist_id)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when loading artist by id.')
+            return None
         if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
             return None
         return self.raw_artist_to_artist(response.get('artist')) if response.get('artist') is not None else None
 
     def get_raw_playlists(self):
-        response = self.connection.getPlaylists()
+        try:
+            response = self.connection.getPlaylists()
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when loading list of playlists.')
+            return []
         if response.get('status') != RESPONSE_OK:
-            return None
-        return response.get('playlists').get('playlist')
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
+            return []
+        playlists = response.get('playlists').get('playlist')
+        if playlists is None:
+            logger.warning('Subsonic does not seem to have any playlists in it\'s library.')
+            return []
+        return playlists
 
     def get_raw_playlist(self, playlist_id):
-        response = self.connection.getPlaylist(playlist_id)
+        try:
+            response = self.connection.getPlaylist(playlist_id)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when loading playlist.')
+            return None
         if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
             return None
         return response.get('playlist')
 
     def get_raw_dir(self, parent_id):
-        response = self.connection.getMusicDirectory(parent_id)
+        try:
+            response = self.connection.getMusicDirectory(parent_id)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when listing content of music directory.')
+            return None
         if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
             return None
         directory = response.get('directory')
         if directory is not None:
@@ -144,14 +195,20 @@ class SubsonicApi():
 
     def get_playlist_as_songs_as_refs(self, playlist_id):
         playlist = self.get_raw_playlist(playlist_id)
+        if playlist is None:
+            return None
         return [self.raw_song_to_ref(song) for song in playlist.get('entry')]
 
     def raw_song_to_ref(self, song):
+        if song is None:
+            return None
         return Ref.track(
             name=song.get('title') or UNKNOWN_SONG,
             uri=uri.get_song_uri(song.get('id')))
 
     def raw_song_to_track(self, song):
+        if song is None:
+            return None
         return Track(
             name=song.get('title') or UNKNOWN_SONG,
             uri=uri.get_song_uri(song.get('id')),
@@ -166,13 +223,18 @@ class SubsonicApi():
                 uri=uri.get_artist_uri(song.get('artistId')))],
             album=Album(
                 name=song.get('album'),
-                uri=uri.get_album_uri('albumId')))
+                uri=uri.get_album_uri(song.get('albumId'))))
+
     def raw_album_to_ref(self, album):
+        if album is None:
+            return None
         return Ref.album(
             name=album.get('title') or album.get('name') or UNKNOWN_ALBUM,
             uri=uri.get_album_uri(album.get('id')))
 
     def raw_album_to_album(self, album):
+        if album is None:
+            return None
         return Album(
             name=album.get('title') or album.get('name') or UNKNOWN_ALBUM,
             uri=uri.get_album_uri(album.get('id')),
@@ -181,16 +243,22 @@ class SubsonicApi():
                 uri=uri.get_artist_uri(album.get('artistId')))])
 
     def raw_artist_to_ref(self, artist):
+        if artist is None:
+            return None
         return Ref.artist(
             name=artist.get('name') or UNKNOWN_ARTIST,
             uri=uri.get_artist_uri(artist.get('id')))
 
     def raw_artist_to_artist(self, artist):
+        if artist is None:
+            return None
         return Artist(
             name=artist.get('name') or UNKNOWN_ARTIST,
             uri=uri.get_artist_uri(artist.get('id')))
 
     def raw_playlist_to_playlist(self, playlist):
+        if playlist is None:
+            return None
         entries = playlist.get('entry')
         tracks = [self.raw_song_to_track(song) for song in entries] if entries is not None else None
         return Playlist(
@@ -199,6 +267,8 @@ class SubsonicApi():
             tracks=tracks)
 
     def raw_playlist_to_ref(self, playlist):
+        if playlist is None:
+            return None
         return Ref.playlist(
             uri=uri.get_playlist_uri(playlist.get('id')),
             name=playlist.get('name'))
