@@ -25,9 +25,9 @@ class SubsonicApi():
             base_url,
             username,
             password,
-            port=self.port,
-            serverPath=parsed.path + '/rest',
-            legacyAuth=legacy_auth)
+            self.port,
+            parsed.path + '/rest',
+            legacy_auth)
         self.url = url + '/rest'
         self.username = username
         self.password = password
