@@ -16,7 +16,7 @@ MAX_SEARCH_RESULTS = 100
 ref_sort_key = lambda ref: ref.name
 
 class SubsonicApi():
-    def __init__(self, url, username, password):
+    def __init__(self, url, username, password, legacy_auth):
         parsed = urlparse(url)
         self.port = parsed.port if parsed.port else \
             443 if parsed.scheme == 'https' else 80
@@ -26,7 +26,8 @@ class SubsonicApi():
             username,
             password,
             self.port,
-            parsed.path + '/rest')
+            parsed.path + '/rest',
+            legacyAuth=legacy_auth)
         self.url = url + '/rest'
         self.username = username
         self.password = password
