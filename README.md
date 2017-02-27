@@ -37,3 +37,4 @@ The following things are **not** supported:
 
 The following people contributed to this project:
  - Frederick Gnodtke
+ - hhm0
