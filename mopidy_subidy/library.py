@@ -71,6 +71,9 @@ class SubidyLibraryProvider(backend.LibraryProvider):
     def lookup_directory(self, directory_id):
         return list(self.subsonic_api.get_recursive_dir_as_songs_as_tracks_iter(directory_id))
 
+    def lookup_playlist(self, playlist_id):
+        return self.subsonic_api.get_playlist_as_playlist(playlist_id).tracks
+
     def browse(self, browse_uri):
         if browse_uri == uri.get_vdir_uri('root'):
             root_vdir_names = ["rootdirs", "artists", "albums"]
@@ -104,7 +107,8 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             return self.lookup_directory(uri.get_directory_id(lookup_uri))
         if type == uri.SONG:
             return self.lookup_song(uri.get_song_id(lookup_uri))
-        # TODO: uri.PLAYLIST
+        if type == uri.PLAYLIST:
+            return self.lookup_playlist(uri.get_playlist_id(lookup_uri))
 
     def lookup(self, uri=None, uris=None):
         if uris is not None:
