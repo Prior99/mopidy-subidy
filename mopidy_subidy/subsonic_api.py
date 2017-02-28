@@ -13,6 +13,7 @@ UNKNOWN_SONG = u'Unknown Song'
 UNKNOWN_ALBUM = u'Unknown Album'
 UNKNOWN_ARTIST = u'Unknown Artist'
 MAX_SEARCH_RESULTS = 100
+MAX_LIST_RESULTS = 500
 
 ref_sort_key = lambda ref: ref.name
 
@@ -224,8 +225,23 @@ class SubsonicApi():
             return songs
         return []
 
-    def get_albums_as_refs(self, artist_id):
-        return [self.raw_album_to_ref(album) for album in self.get_raw_albums(artist_id)]
+    def get_raw_album_list(self, ltype, size=MAX_LIST_RESULTS):
+        try:
+            response = self.connection.getAlbumList2(ltype=ltype, size=size)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when loading album list.')
+            return []
+        if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
+            return []
+        albums = response.get('albumList2').get('album')
+        if albums is not None:
+            return albums
+        return []
+
+    def get_albums_as_refs(self, artist_id=None):
+        albums = (self.get_raw_album_list('alphabeticalByName') if artist_id is None else self.get_raw_albums(artist_id))
+        return [self.raw_album_to_ref(album) for album in albums]
 
     def get_albums_as_albums(self, artist_id):
         return [self.raw_album_to_album(album) for album in self.get_raw_albums(artist_id)]

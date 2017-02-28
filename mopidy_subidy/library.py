@@ -15,7 +15,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
     def browse_songs(self, album_id):
         return self.subsonic_api.get_songs_as_refs(album_id)
 
-    def browse_albums(self, artist_id):
+    def browse_albums(self, artist_id=None):
         return [Ref.directory(name=album.name, uri=album.uri) for album in self.subsonic_api.get_albums_as_refs(artist_id)]
 
     def browse_artists(self):
@@ -41,15 +41,18 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             # ("root", <no name>)
             ("rootdirs", "Directories"),
             ("artists", "Artists"),
+            ("albums", "Albums"),
         ]
         vdirs = dict((template[0], dict(id=template[0], name=template[1])) for template in vdir_templates)
         if browse_uri == uri.ROOT_URI:
-            root_vdirs = sorted((vdirs[vdir_name] for vdir_name in ["rootdirs", "artists"]), key=lambda a: a["name"])
+            root_vdirs = sorted((vdirs[vdir_name] for vdir_name in ["rootdirs", "artists", "albums"]), key=lambda a: a["name"])
             return [Ref.directory(name=vdir["name"], uri=uri.get_vdir_uri(vdir["id"])) for vdir in root_vdirs]
         elif browse_uri == uri.get_vdir_uri("rootdirs"):
             return self.browse_rootdirs()
         elif browse_uri == uri.get_vdir_uri("artists"):
             return self.browse_artists()
+        elif browse_uri == uri.get_vdir_uri("albums"):
+            return self.browse_albums()
         else:
             uri_type = uri.get_type(browse_uri)
             if uri_type == uri.DIRECTORY:
