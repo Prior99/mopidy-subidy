@@ -24,7 +24,7 @@ setup(
     install_requires=[
         'setuptools',
         'Mopidy >= 2.0',
-        'py-sonic',
+        'py-sonic >= 0.6.1',
         'Pykka >= 1.1'
     ],
     entry_points={
