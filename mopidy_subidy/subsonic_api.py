@@ -158,7 +158,9 @@ class SubsonicApi():
             return None
         directory = response.get('directory')
         if directory is not None:
-            return directory.get('child')
+            diritems = directory.get('child')
+            sorted_diritems = sorted(diritems, key=lambda a: (a['isDir'], (a['title'] if a['isDir'] else int(a['track']))))
+            return sorted_diritems
         return None
 
     def get_raw_albums(self, artist_id):
