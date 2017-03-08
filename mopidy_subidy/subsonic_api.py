@@ -3,6 +3,7 @@ import libsonic
 import logging
 import itertools
 from mopidy.models import Track, Album, Artist, Playlist, Ref, SearchResult
+import re
 from mopidy_subidy import uri
 
 logger = logging.getLogger(__name__)
@@ -14,6 +15,8 @@ UNKNOWN_ARTIST = u'Unknown Artist'
 MAX_SEARCH_RESULTS = 100
 
 ref_sort_key = lambda ref: ref.name
+
+string_nums_nocase_sort_key = lambda s: tuple((int(i) if i.isdigit() else i.lower()) for i in re.split(r'(\d+)', s))
 
 class SubsonicApi():
     def __init__(self, url, username, password, legacy_auth):
@@ -159,7 +162,7 @@ class SubsonicApi():
         directory = response.get('directory')
         if directory is not None:
             diritems = directory.get('child')
-            sorted_diritems = sorted(diritems, key=lambda a: (a['isDir'], (a['title'] if a['isDir'] else int(a['track']))))
+            sorted_diritems = sorted(diritems, key=lambda a: (a['isDir'], (string_nums_nocase_sort_key(a['title']) if a['isDir'] else int(a['track']))))
             return sorted_diritems
         return None
 
