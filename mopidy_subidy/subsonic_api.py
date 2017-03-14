@@ -16,7 +16,15 @@ MAX_SEARCH_RESULTS = 100
 
 ref_sort_key = lambda ref: ref.name
 
-string_nums_nocase_sort_key = lambda s: [(int(i) if i.isdigit() else i.lower()) for i in re.split(r'(\d+)', s)]
+def string_nums_nocase_sort_key(s):
+    segments = []
+    for substr in re.split(r'(\d+)', s):
+        if substr.isdigit():
+            seg = int(substr)
+        else:
+            seg = substr.lower()
+        segments.append(seg)
+    return segments
 
 def diritem_sort_key(item):
     isdir = item['isDir']
