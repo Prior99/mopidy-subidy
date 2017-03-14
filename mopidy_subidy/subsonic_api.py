@@ -16,7 +16,7 @@ MAX_SEARCH_RESULTS = 100
 
 ref_sort_key = lambda ref: ref.name
 
-string_nums_nocase_sort_key = lambda s: tuple((int(i) if i.isdigit() else i.lower()) for i in re.split(r'(\d+)', s))
+string_nums_nocase_sort_key = lambda s: [(int(i) if i.isdigit() else i.lower()) for i in re.split(r'(\d+)', s)]
 
 class SubsonicApi():
     def __init__(self, url, username, password, legacy_auth):
