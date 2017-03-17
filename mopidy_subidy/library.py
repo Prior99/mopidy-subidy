@@ -16,10 +16,10 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return self.subsonic_api.get_songs_as_refs(album_id)
 
     def browse_albums(self, artist_id=None):
-        return [Ref.directory(name=album.name, uri=album.uri) for album in self.subsonic_api.get_albums_as_refs(artist_id)]
+        return self.subsonic_api.get_albums_as_refs(artist_id)
 
     def browse_artists(self):
-        return [Ref.directory(name=artist.name, uri=artist.uri) for artist in self.subsonic_api.get_artists_as_refs()]
+        return self.subsonic_api.get_artists_as_refs()
 
     def browse_rootdirs(self):
         return self.subsonic_api.get_rootdirs_as_refs()
