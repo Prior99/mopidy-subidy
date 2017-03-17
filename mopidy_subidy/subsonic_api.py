@@ -1,4 +1,5 @@
 from urlparse import urlparse
+from urllib import urlencode
 import libsonic
 import logging
 import itertools
@@ -57,13 +58,21 @@ class SubsonicApi():
             logger.error('Unabled to reach subsonic server: %s' % e)
             exit()
 
+    def get_subsonic_uri(self, view_name, params, censor=False):
+        di_params = {}
+        di_params.update(params)
+        di_params.update(c='mopidy', v=self.connection.apiVersion)
+        if censor:
+            params.update(u='*****', p='*****')
+        else:
+            params.update(u=self.username, p=self.password)
+        return '{}/{}.view?{}'.format(self.url, view_name, urlencode(params))
+
     def get_song_stream_uri(self, song_id):
-        template = '%s/stream.view?id=%s&u=%s&p=%s&c=mopidy&v=1.14'
-        return template % (self.url, song_id, self.username, self.password)
+        return self.get_subsonic_uri('stream', dict(id=song_id))
 
     def get_censored_song_stream_uri(self, song_id):
-        template = '%s/stream.view?id=%s&u=******&p=******&c=mopidy&v=1.14'
-        return template % (self.url, song_id)
+        return self.get_subsonic_uri('stream', dict(id=song_id), True)
 
     def find_raw(self, query, exclude_artists=False, exclude_albums=False, exclude_songs=False):
         try:
