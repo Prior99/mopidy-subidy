@@ -61,7 +61,8 @@ class SubsonicApi():
     def get_subsonic_uri(self, view_name, params, censor=False):
         di_params = {}
         di_params.update(params)
-        di_params.update(c='mopidy', v=self.connection.apiVersion)
+        di_params.update(c='mopidy')
+        di_params.update(v=self.connection.apiVersion)
         if censor:
             params.update(u='*****', p='*****')
         else:
