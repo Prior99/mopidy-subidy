@@ -43,8 +43,11 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             ("artists", "Artists"),
             ("albums", "Albums"),
         ]
+        # Create a dict with the keys being the left sides in `vdir_templates` ("rootdirs", "artists", ...)
+        # and the values being objects containing the key as `id` as well as the human readable name as `name`.
         vdirs = dict((template[0], dict(id=template[0], name=template[1])) for template in vdir_templates)
         if browse_uri == uri.ROOT_URI:
+            # Sort directories by name.
             root_vdirs = sorted((vdirs[vdir_name] for vdir_name in ["rootdirs", "artists", "albums"]), key=lambda a: a["name"])
             return [Ref.directory(name=vdir["name"], uri=uri.get_vdir_uri(vdir["id"])) for vdir in root_vdirs]
         elif browse_uri == uri.get_vdir_uri("rootdirs"):
