@@ -6,7 +6,35 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SubidyLibraryProvider(backend.LibraryProvider):
-    root_directory = Ref.directory(uri=uri.ROOT_URI, name='Subsonic')
+    def __create_vdirs():
+        vdir_templates = [
+            dict(id="root", name="Subsonic"),
+            dict(id="artists", name="Artists"),
+            dict(id="albums", name="Albums"),
+            dict(id="rootdirs", name="Directories"),
+        ]
+        # Create a dict with the keys being the `id`s in `vdir_templates`
+        # and the values being objects containing the vdir `id`,
+        # the human readable name as `name`, and the URI as `uri`.
+        vdirs = {}
+        for template in vdir_templates:
+            vdir = template.copy()
+            vdir.update(uri=uri.get_vdir_uri(vdir["id"]))
+            vdirs[template['id']] = vdir
+        return vdirs
+
+    _vdirs = __create_vdirs()
+
+    def __raw_vdir_to_ref(vdir):
+        if vdir is None:
+            return None
+        return Ref.directory(
+            name=vdir['name'],
+            uri=vdir['uri'])
+
+    root_directory = __raw_vdir_to_ref(_vdirs['root'])
+
+    _raw_vdir_to_ref = staticmethod(__raw_vdir_to_ref)
 
     def __init__(self, *args, **kwargs):
         super(SubidyLibraryProvider, self).__init__(*args, **kwargs)
@@ -37,19 +65,11 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return self.subsonic_api.get_artist_by_id(artist_id)
 
     def browse(self, browse_uri):
-        vdir_templates = [
-            # ("root", <no name>)
-            ("rootdirs", "Directories"),
-            ("artists", "Artists"),
-            ("albums", "Albums"),
-        ]
-        # Create a dict with the keys being the left sides in `vdir_templates` ("rootdirs", "artists", ...)
-        # and the values being objects containing the key as `id` as well as the human readable name as `name`.
-        vdirs = dict((template[0], dict(id=template[0], name=template[1])) for template in vdir_templates)
-        if browse_uri == uri.ROOT_URI:
-            # Sort directories by name.
-            root_vdirs = sorted((vdirs[vdir_name] for vdir_name in ["rootdirs", "artists", "albums"]), key=lambda a: a["name"])
-            return [Ref.directory(name=vdir["name"], uri=uri.get_vdir_uri(vdir["id"])) for vdir in root_vdirs]
+        if browse_uri == uri.get_vdir_uri('root'):
+            root_vdir_names = ["rootdirs", "artists", "albums"]
+            root_vdirs = [self._vdirs[vdir_name] for vdir_name in root_vdir_names]
+            sorted_root_vdirs = sorted(root_vdirs, key=lambda vdir: vdir["name"])
+            return [self._raw_vdir_to_ref(vdir) for vdir in sorted_root_vdirs]
         elif browse_uri == uri.get_vdir_uri("rootdirs"):
             return self.browse_rootdirs()
         elif browse_uri == uri.get_vdir_uri("artists"):

@@ -7,10 +7,7 @@ ALBUM = 'album'
 DIRECTORY = 'directory'
 VDIR = 'vdir'
 PREFIX = 'subidy'
-ROOT = 'root'
 SEARCH = 'search'
-
-ROOT_URI = '%s:%s:%s' % (PREFIX, VDIR, ROOT)
 
 regex = re.compile(r'(\w+?):(\w+?)(?::|$)(.+?)?$')
 
