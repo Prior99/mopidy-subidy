@@ -6,20 +6,54 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SubidyLibraryProvider(backend.LibraryProvider):
-    root_directory = Ref.directory(uri=uri.ROOT_URI, name='Subsonic')
+    def __create_vdirs():
+        vdir_templates = [
+            dict(id="root", name="Subsonic"),
+            dict(id="artists", name="Artists"),
+            dict(id="albums", name="Albums"),
+            dict(id="rootdirs", name="Directories"),
+        ]
+        # Create a dict with the keys being the `id`s in `vdir_templates`
+        # and the values being objects containing the vdir `id`,
+        # the human readable name as `name`, and the URI as `uri`.
+        vdirs = {}
+        for template in vdir_templates:
+            vdir = template.copy()
+            vdir.update(uri=uri.get_vdir_uri(vdir["id"]))
+            vdirs[template['id']] = vdir
+        return vdirs
+
+    _vdirs = __create_vdirs()
+
+    def __raw_vdir_to_ref(vdir):
+        if vdir is None:
+            return None
+        return Ref.directory(
+            name=vdir['name'],
+            uri=vdir['uri'])
+
+    root_directory = __raw_vdir_to_ref(_vdirs['root'])
+
+    _raw_vdir_to_ref = staticmethod(__raw_vdir_to_ref)
 
     def __init__(self, *args, **kwargs):
         super(SubidyLibraryProvider, self).__init__(*args, **kwargs)
         self.subsonic_api = self.backend.subsonic_api
 
-    def browse_songs(self,album_id):
+    def browse_songs(self, album_id):
         return self.subsonic_api.get_songs_as_refs(album_id)
 
-    def browse_albums(self, artist_id):
+    def browse_albums(self, artist_id=None):
         return self.subsonic_api.get_albums_as_refs(artist_id)
 
     def browse_artists(self):
         return self.subsonic_api.get_artists_as_refs()
+
+    def browse_rootdirs(self):
+        return self.subsonic_api.get_rootdirs_as_refs()
+
+    def browse_diritems(self, directory_id):
+        return self.subsonic_api.get_diritems_as_refs(directory_id)
 
     def lookup_song(self, song_id):
         return self.subsonic_api.get_song_by_id(song_id)
@@ -31,13 +65,27 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return self.subsonic_api.get_artist_by_id(artist_id)
 
     def browse(self, browse_uri):
-        type = uri.get_type(browse_uri)
-        if browse_uri == uri.ROOT_URI:
+        if browse_uri == uri.get_vdir_uri('root'):
+            root_vdir_names = ["rootdirs", "artists", "albums"]
+            root_vdirs = [self._vdirs[vdir_name] for vdir_name in root_vdir_names]
+            sorted_root_vdirs = sorted(root_vdirs, key=lambda vdir: vdir["name"])
+            return [self._raw_vdir_to_ref(vdir) for vdir in sorted_root_vdirs]
+        elif browse_uri == uri.get_vdir_uri("rootdirs"):
+            return self.browse_rootdirs()
+        elif browse_uri == uri.get_vdir_uri("artists"):
             return self.browse_artists()
-        if type == uri.ARTIST:
-            return self.browse_albums(uri.get_artist_id(browse_uri))
-        if type == uri.ALBUM:
-            return self.browse_songs(uri.get_album_id(browse_uri))
+        elif browse_uri == uri.get_vdir_uri("albums"):
+            return self.browse_albums()
+        else:
+            uri_type = uri.get_type(browse_uri)
+            if uri_type == uri.DIRECTORY:
+                return self.browse_diritems(uri.get_directory_id(browse_uri))
+            elif uri_type == uri.ARTIST:
+                return self.browse_albums(uri.get_artist_id(browse_uri))
+            elif uri_type == uri.ALBUM:
+                return self.browse_songs(uri.get_album_id(browse_uri))
+            else:
+                return []
 
     def lookup_one(self, lookup_uri):
         type = uri.get_type(lookup_uri)
