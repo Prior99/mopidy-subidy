@@ -65,10 +65,10 @@ class SubsonicApi():
         di_params.update(c='mopidy')
         di_params.update(v=self.connection.apiVersion)
         if censor:
-            params.update(u='*****', p='*****')
+            di_params.update(u='*****', p='*****')
         else:
-            params.update(u=self.username, p=self.password)
-        return '{}/{}.view?{}'.format(self.url, view_name, urlencode(params))
+            di_params.update(u=self.username, p=self.password)
+        return '{}/{}.view?{}'.format(self.url, view_name, urlencode(di_params))
 
     def get_song_stream_uri(self, song_id):
         return self.get_subsonic_uri('stream', dict(id=song_id))
