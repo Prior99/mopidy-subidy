@@ -56,7 +56,11 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return self.subsonic_api.get_diritems_as_refs(directory_id)
 
     def lookup_song(self, song_id):
-        return self.subsonic_api.get_song_by_id(song_id)
+        song = self.subsonic_api.get_song_by_id(song_id)
+        if song is None:
+            return []
+        else:
+            return [song]
 
     def lookup_album(self, album_id):
         return self.subsonic_api.get_songs_as_tracks(album_id)
@@ -99,7 +103,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         if type == uri.DIRECTORY:
             return self.lookup_directory(uri.get_directory_id(lookup_uri))
         if type == uri.SONG:
-            return [self.lookup_song(uri.get_song_id(lookup_uri))]
+            return self.lookup_song(uri.get_song_id(lookup_uri))
         # TODO: uri.PLAYLIST
 
     def lookup(self, uri=None, uris=None):
