@@ -289,6 +289,12 @@ class SubsonicApi():
             return None
         return [self.raw_song_to_ref(song) for song in playlist.get('entry')]
 
+    def get_artist_songs_as_tracks(self, artist_id):
+        albums = self.get_raw_albums(artist_id)
+        if albums is None:
+            return None
+        return [self.raw_song_to_track(song) for album in albums for song in self.get_raw_songs(album.get('id'))]
+
     def raw_song_to_ref(self, song):
         if song is None:
             return None
