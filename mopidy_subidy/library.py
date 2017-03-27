@@ -59,7 +59,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return self.subsonic_api.get_song_by_id(song_id)
 
     def lookup_album(self, album_id):
-        return self.subsonic_api.get_album_by_id(album_id)
+        return self.subsonic_api.get_songs_as_tracks(album_id)
 
     def lookup_artist(self, artist_id):
         return self.subsonic_api.get_artist_by_id(artist_id)
@@ -94,13 +94,13 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         if type == uri.ALBUM:
             return self.lookup_album(uri.get_album_id(lookup_uri))
         if type == uri.SONG:
-            return self.lookup_song(uri.get_song_id(lookup_uri))
+            return [self.lookup_song(uri.get_song_id(lookup_uri))]
 
     def lookup(self, uri=None, uris=None):
         if uris is not None:
-            return [self.lookup_one(uri) for uri in uris]
+            return dict((uri, self.lookup_one(uri)) for uri in uris)
         if uri is not None:
-            return [self.lookup_one(uri)]
+            return self.lookup_one(uri)
         return None
 
     def refresh(self, uri):
