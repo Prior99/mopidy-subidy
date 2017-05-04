@@ -56,13 +56,23 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return self.subsonic_api.get_diritems_as_refs(directory_id)
 
     def lookup_song(self, song_id):
-        return self.subsonic_api.get_song_by_id(song_id)
+        song = self.subsonic_api.get_song_by_id(song_id)
+        if song is None:
+            return []
+        else:
+            return [song]
 
     def lookup_album(self, album_id):
-        return self.subsonic_api.get_album_by_id(album_id)
+        return self.subsonic_api.get_songs_as_tracks(album_id)
 
     def lookup_artist(self, artist_id):
-        return self.subsonic_api.get_artist_by_id(artist_id)
+        return list(self.subsonic_api.get_artist_as_songs_as_tracks_iter(artist_id))
+
+    def lookup_directory(self, directory_id):
+        return list(self.subsonic_api.get_recursive_dir_as_songs_as_tracks_iter(directory_id))
+
+    def lookup_playlist(self, playlist_id):
+        return self.subsonic_api.get_playlist_as_playlist(playlist_id).tracks
 
     def browse(self, browse_uri):
         if browse_uri == uri.get_vdir_uri('root'):
@@ -93,14 +103,18 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             return self.lookup_artist(uri.get_artist_id(lookup_uri))
         if type == uri.ALBUM:
             return self.lookup_album(uri.get_album_id(lookup_uri))
+        if type == uri.DIRECTORY:
+            return self.lookup_directory(uri.get_directory_id(lookup_uri))
         if type == uri.SONG:
             return self.lookup_song(uri.get_song_id(lookup_uri))
+        if type == uri.PLAYLIST:
+            return self.lookup_playlist(uri.get_playlist_id(lookup_uri))
 
     def lookup(self, uri=None, uris=None):
         if uris is not None:
-            return [self.lookup_one(uri) for uri in uris]
+            return dict((uri, self.lookup_one(uri)) for uri in uris)
         if uri is not None:
-            return [self.lookup_one(uri)]
+            return self.lookup_one(uri)
         return None
 
     def refresh(self, uri):

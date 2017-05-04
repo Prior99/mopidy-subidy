@@ -289,6 +289,25 @@ class SubsonicApi():
             return None
         return [self.raw_song_to_ref(song) for song in playlist.get('entry')]
 
+    def get_artist_as_songs_as_tracks_iter(self, artist_id):
+        albums = self.get_raw_albums(artist_id)
+        if albums is None:
+            return
+        for album in albums:
+            for song in self.get_raw_songs(album.get('id')):
+                yield self.raw_song_to_track(song)
+
+    def get_recursive_dir_as_songs_as_tracks_iter(self, directory_id):
+        diritems = self.get_raw_dir(directory_id)
+        if diritems is None:
+            return
+        for item in diritems:
+            if item.get('isDir'):
+                for song in self.get_recursive_dir_as_songs_as_tracks_iter(item.get('id')):
+                    yield song
+            else:
+                yield self.raw_song_to_track(item)
+
     def raw_song_to_ref(self, song):
         if song is None:
             return None
