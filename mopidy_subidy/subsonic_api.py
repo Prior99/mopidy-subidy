@@ -349,7 +349,8 @@ class SubsonicApi():
             uri=uri.get_album_uri(album.get('id')),
             artists=[Artist(
                 name=album.get('artist'),
-                uri=uri.get_artist_uri(album.get('artistId')))])
+                uri=uri.get_artist_uri(album.get('artistId')))],
+            num_tracks=album.get('songCount'))
 
     def raw_directory_to_ref(self, directory):
         if directory is None:
