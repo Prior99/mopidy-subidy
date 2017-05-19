@@ -13,7 +13,7 @@ class SubidyPlaylistsProvider(backend.PlaylistsProvider):
         self.refresh()
 
     def as_list(self):
-        return self.playlists
+        return self.subsonic_api.get_playlists_as_refs()
 
     def create(self, name):
         result = self.subsonic_api.create_playlist_raw(name)
@@ -41,7 +41,7 @@ class SubidyPlaylistsProvider(backend.PlaylistsProvider):
         return self.subsonic_api.get_playlist_as_playlist(uri.get_playlist_id(lookup_uri))
 
     def refresh(self):
-        self.playlists = self.subsonic_api.get_playlists_as_refs()
+        pass
 
     def save(self, playlist):
         playlist_id = uri.get_playlist_id(playlist.uri)
