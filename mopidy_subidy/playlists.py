@@ -48,7 +48,7 @@ class SubidyPlaylistsProvider(backend.PlaylistsProvider):
         track_ids = []
         for trk in playlist.tracks:
             track_ids.append(uri.get_song_id(trk.uri))
-        result = self.subsonic_api.update_playlist_raw(playlist_id, track_ids)
+        result = self.subsonic_api.save_playlist_raw(playlist_id, track_ids)
         if result is None:
             return None
         return playlist

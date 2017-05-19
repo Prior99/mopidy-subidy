@@ -123,9 +123,9 @@ class SubsonicApi():
             return None
         return response
 
-    def update_playlist_raw(self, playlist_id, song_ids):
+    def save_playlist_raw(self, playlist_id, song_ids):
         try:
-            response = self.connection.updatePlaylist(playlist_id, songIdsToAdd=song_ids)
+            response = self.connection.createPlaylist(playlist_id, songIds=song_ids)
         except Exception as e:
             logger.warning('Connecting to subsonic failed when creating playlist.')
             return None
