@@ -101,6 +101,39 @@ class SubsonicApi():
             albums=[self.raw_album_to_album(album) for album in result.get('album') or []],
             tracks=[self.raw_song_to_track(song) for song in result.get('song') or []])
 
+    def create_playlist_raw(self, name):
+        try:
+            response = self.connection.createPlaylist(name=name)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when creating playlist.')
+            return None
+        if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
+            return None
+        return response
+
+    def delete_playlist_raw(self, playlist_id):
+        try:
+            response = self.connection.deletePlaylist(playlist_id)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when deleting playlist.')
+            return None
+        if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
+            return None
+        return response
+
+    def update_playlist_raw(self, playlist_id, song_ids):
+        try:
+            response = self.connection.updatePlaylist(playlist_id, songIdsToAdd=song_ids)
+        except Exception as e:
+            logger.warning('Connecting to subsonic failed when creating playlist.')
+            return None
+        if response.get('status') != RESPONSE_OK:
+            logger.warning('Got non-okay status code from subsonic: %s' % response.get('status'))
+            return None
+        return response
+
     def get_raw_artists(self):
         try:
             response = self.connection.getArtists()
