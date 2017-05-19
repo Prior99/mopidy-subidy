@@ -21,8 +21,7 @@ class SubidyPlaylistsProvider(backend.PlaylistsProvider):
             return None
         playlist = result.get('playlist')
         if playlist is None:
-            self.refresh()
-            for pl in self.playlists:
+            for pl in self.subsonic_api.get_playlists_as_playlists():
                 if pl.name == name:
                     playlist = pl
             return playlist
