@@ -23,9 +23,8 @@ The following things are supported:
 
  * Browsing all artists/albums/tracks
  * Searching for any terms
- * Browsing playlists
+ * Browsing, creating, editing and deleting playlists
  * Searching explicitly for one of: artists, albums, tracks
- * Creating, editing and deleting playlists
 
 The following things are **not** supported:
 
