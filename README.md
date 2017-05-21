@@ -25,10 +25,10 @@ The following things are supported:
  * Searching for any terms
  * Browsing playlists
  * Searching explicitly for one of: artists, albums, tracks
+ * Creating, editing and deleting playlists
 
 The following things are **not** supported:
 
-  * Creating, editing and deleting playlists
   * Subsonics smart playlists
   * Searching for a combination of filters (artist and album, artist and track, etc.)
 
