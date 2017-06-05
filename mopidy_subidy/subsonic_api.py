@@ -347,11 +347,11 @@ class SubsonicApi():
             return None
         return Album(
             name=album.get('title') or album.get('name') or UNKNOWN_ALBUM,
+            num_tracks=album.get('songCount'),
             uri=uri.get_album_uri(album.get('id')),
             artists=[Artist(
                 name=album.get('artist'),
-                uri=uri.get_artist_uri(album.get('artistId')))],
-            num_tracks=album.get('songCount'))
+                uri=uri.get_artist_uri(album.get('artistId')))])
 
     def raw_directory_to_ref(self, directory):
         if directory is None:
