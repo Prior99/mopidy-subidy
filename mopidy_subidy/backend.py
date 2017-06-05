@@ -10,7 +10,8 @@ class SubidyBackend(pykka.ThreadingActor, backend.Backend):
             url=subidy_config['url'],
             username=subidy_config['username'],
             password=subidy_config['password'],
-            legacy_auth=subidy_config['legacy_auth'])
+            legacy_auth=subidy_config['legacy_auth'],
+            api_version=subidy_config['api_version'])
         self.library = library.SubidyLibraryProvider(backend=self)
         self.playback = playback.SubidyPlaybackProvider(audio=audio, backend=self)
         self.playlists = playlists.SubidyPlaylistsProvider(backend=self)

@@ -12,7 +12,8 @@ enabled=True
 url=https://path.to/your/subsonic/server
 username=subsonic_username
 password=your_secret_password
-legacy_auth=(optional; setting to yes may solve some connection errors)
+legacy_auth=(optional - setting to yes may solve some connection errors)
+api_version=(optional - specify which API version to use. Subsonic 6.2 uses 1.14.0)
 ```
 
 ## State of this plugin

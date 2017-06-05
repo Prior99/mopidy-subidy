@@ -37,7 +37,7 @@ def diritem_sort_key(item):
     return (isdir, key)
 
 class SubsonicApi():
-    def __init__(self, url, username, password, legacy_auth):
+    def __init__(self, url, username, password, legacy_auth, api_version):
         parsed = urlparse(url)
         self.port = parsed.port if parsed.port else \
             443 if parsed.scheme == 'https' else 80
@@ -48,15 +48,16 @@ class SubsonicApi():
             password,
             self.port,
             parsed.path + '/rest',
-            legacyAuth=legacy_auth)
+            legacyAuth=legacy_auth,
+            apiVersion=api_version)
         self.url = url + '/rest'
         self.username = username
         self.password = password
-        logger.info('Connecting to subsonic server on url %s as user %s' % (url, username))
+        logger.info('Connecting to subsonic server on url %s as user %s, API version %s' % (url, username, api_version))
         try:
             self.connection.ping()
         except Exception as e:
-            logger.error('Unabled to reach subsonic server: %s' % e)
+            logger.error('Unable to reach subsonic server: %s' % e)
             exit()
 
     def get_subsonic_uri(self, view_name, params, censor=False):
