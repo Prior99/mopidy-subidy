@@ -347,6 +347,7 @@ class SubsonicApi():
             return None
         return Album(
             name=album.get('title') or album.get('name') or UNKNOWN_ALBUM,
+            num_tracks=album.get('songCount'),
             uri=uri.get_album_uri(album.get('id')),
             artists=[Artist(
                 name=album.get('artist'),
