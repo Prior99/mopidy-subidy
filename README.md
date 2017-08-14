@@ -24,12 +24,11 @@ The following things are supported:
 
  * Browsing all artists/albums/tracks
  * Searching for any terms
- * Browsing playlists
+ * Browsing, creating, editing and deleting playlists
  * Searching explicitly for one of: artists, albums, tracks
 
 The following things are **not** supported:
 
-  * Creating, editing and deleting playlists
   * Subsonics smart playlists
   * Searching for a combination of filters (artist and album, artist and track, etc.)
 
