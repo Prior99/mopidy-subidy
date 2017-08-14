@@ -1,3 +1,4 @@
+import mopidy_subidy
 from mopidy_subidy import library, playback, playlists, subsonic_api
 from mopidy import backend
 import pykka
@@ -10,6 +11,7 @@ class SubidyBackend(pykka.ThreadingActor, backend.Backend):
             url=subidy_config['url'],
             username=subidy_config['username'],
             password=subidy_config['password'],
+            app_name=mopidy_subidy.SubidyExtension.dist_name,
             legacy_auth=subidy_config['legacy_auth'],
             api_version=subidy_config['api_version'])
         self.library = library.SubidyLibraryProvider(backend=self)

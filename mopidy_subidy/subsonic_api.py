@@ -37,7 +37,7 @@ def diritem_sort_key(item):
     return (isdir, key)
 
 class SubsonicApi():
-    def __init__(self, url, username, password, legacy_auth, api_version):
+    def __init__(self, url, username, password, app_name, legacy_auth, api_version):
         parsed = urlparse(url)
         self.port = parsed.port if parsed.port else \
             443 if parsed.scheme == 'https' else 80
@@ -48,6 +48,7 @@ class SubsonicApi():
             password,
             self.port,
             parsed.path + '/rest',
+            appName=app_name,
             legacyAuth=legacy_auth,
             apiVersion=api_version)
         self.url = url + '/rest'
@@ -63,7 +64,7 @@ class SubsonicApi():
     def get_subsonic_uri(self, view_name, params, censor=False):
         di_params = {}
         di_params.update(params)
-        di_params.update(c='mopidy')
+        di_params.update(c=self.connection.appName)
         di_params.update(v=self.connection.apiVersion)
         if censor:
             di_params.update(u='*****', p='*****')
