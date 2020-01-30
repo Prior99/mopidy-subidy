@@ -1,5 +1,5 @@
-from urlparse import urlparse
-from urllib import urlencode
+from urllib.parse import urlparse
+from urllib.parse import urlencode
 import libsonic
 import logging
 import itertools

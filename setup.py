@@ -24,11 +24,11 @@ setup(
     install_requires=[
         'setuptools',
         'Mopidy >= 2.0',
-        'py-sonic == 0.6.2',
+        'py-sonic >= 0.7.7',
         'Pykka >= 1.1'
     ],
     entry_points={
-        b'mopidy.ext': [
+        'mopidy.ext': [
             'subidy = mopidy_subidy:SubidyExtension',
         ],
     },
