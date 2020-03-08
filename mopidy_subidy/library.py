@@ -37,7 +37,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
     _raw_vdir_to_ref = staticmethod(__raw_vdir_to_ref)
 
     def __init__(self, *args, **kwargs):
-        super(SubidyLibraryProvider, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.subsonic_api = self.backend.subsonic_api
 
     def browse_songs(self, album_id):
@@ -112,7 +112,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
 
     def lookup(self, uri=None, uris=None):
         if uris is not None:
-            return dict((uri, self.lookup_one(uri)) for uri in uris)
+            return {uri: self.lookup_one(uri) for uri in uris}
         if uri is not None:
             return self.lookup_one(uri)
         return None

@@ -5,7 +5,7 @@ import pykka
 
 class SubidyBackend(pykka.ThreadingActor, backend.Backend):
     def __init__(self, config, audio):
-        super(SubidyBackend, self).__init__()
+        super().__init__()
         subidy_config = config['subidy']
         self.subsonic_api = subsonic_api.SubsonicApi(
             url=subidy_config['url'],

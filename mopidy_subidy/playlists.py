@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class SubidyPlaylistsProvider(backend.PlaylistsProvider):
     def __init__(self, *args, **kwargs):
-        super(SubidyPlaylistsProvider, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.subsonic_api = self.backend.subsonic_api
         self.playlists = []
         self.refresh()

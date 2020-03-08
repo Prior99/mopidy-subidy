@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import os
 
 from mopidy import ext, config
@@ -18,7 +16,7 @@ class SubidyExtension(ext.Extension):
         return config.read(conf_file)
 
     def get_config_schema(self):
-        schema = super(SubidyExtension, self).get_config_schema()
+        schema = super().get_config_schema()
         schema['url'] = config.String()
         schema['username'] = config.String()
         schema['password'] = config.Secret()

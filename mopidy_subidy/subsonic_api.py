@@ -9,10 +9,10 @@ from mopidy_subidy import uri
 
 logger = logging.getLogger(__name__)
 
-RESPONSE_OK = u'ok'
-UNKNOWN_SONG = u'Unknown Song'
-UNKNOWN_ALBUM = u'Unknown Album'
-UNKNOWN_ARTIST = u'Unknown Artist'
+RESPONSE_OK = 'ok'
+UNKNOWN_SONG = 'Unknown Song'
+UNKNOWN_ALBUM = 'Unknown Album'
+UNKNOWN_ARTIST = 'Unknown Artist'
 MAX_SEARCH_RESULTS = 100
 MAX_LIST_RESULTS = 500
 
@@ -54,7 +54,7 @@ class SubsonicApi():
         self.url = url + '/rest'
         self.username = username
         self.password = password
-        logger.info('Connecting to subsonic server on url %s as user %s, API version %s' % (url, username, api_version))
+        logger.info(f'Connecting to subsonic server on url {url} as user {username}, API version {api_version}')
         try:
             self.connection.ping()
         except Exception as e:
@@ -338,8 +338,7 @@ class SubsonicApi():
             return
         for item in diritems:
             if item.get('isDir'):
-                for song in self.get_recursive_dir_as_songs_as_tracks_iter(item.get('id')):
-                    yield song
+                yield from self.get_recursive_dir_as_songs_as_tracks_iter(item.get('id'))
             else:
                 yield self.raw_song_to_track(item)
 

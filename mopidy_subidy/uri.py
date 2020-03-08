@@ -63,7 +63,7 @@ def get_type(uri):
     return result.group(2)
 
 def get_type_uri(type, id):
-    return u'%s:%s:%s' % (PREFIX, type, id)
+    return f'{PREFIX}:{type}:{id}'
 
 def get_artist_uri(id):
     return get_type_uri(ARTIST, id)
