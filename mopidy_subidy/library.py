@@ -1,6 +1,6 @@
 import logging
 
-from mopidy import backend, models
+from mopidy import backend
 from mopidy.models import Ref, SearchResult
 from mopidy_subidy import uri
 
@@ -129,22 +129,6 @@ class SubidyLibraryProvider(backend.LibraryProvider):
 
     def refresh(self, uri):
         pass
-
-    def search_uri(self, query):
-        type = uri.get_type(lookup_uri)
-        if type == uri.ARTIST:
-            artist = self.lookup_artist(uri.get_artist_id(lookup_uri))
-            if artist is not None:
-                return SearchResult(artists=[artist])
-        elif type == uri.ALBUM:
-            album = self.lookup_album(uri.get_album_id(lookup_uri))
-            if album is not None:
-                return SearchResult(albums=[album])
-        elif type == uri.SONG:
-            song = self.lookup_song(uri.get_song_id(lookup_uri))
-            if song is not None:
-                return SearchResult(tracks=[song])
-        return None
 
     def search_by_artist_album_and_track(
         self, artist_name, album_name, track_name

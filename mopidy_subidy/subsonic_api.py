@@ -1,4 +1,3 @@
-import itertools
 import logging
 import re
 from urllib.parse import urlencode, urlparse
@@ -16,7 +15,9 @@ UNKNOWN_ARTIST = "Unknown Artist"
 MAX_SEARCH_RESULTS = 100
 MAX_LIST_RESULTS = 500
 
-ref_sort_key = lambda ref: ref.name
+
+def ref_sort_key(ref):
+    return ref.name
 
 
 def string_nums_nocase_sort_key(s):
@@ -66,7 +67,8 @@ class SubsonicApi:
         self.username = username
         self.password = password
         logger.info(
-            f"Connecting to subsonic server on url {url} as user {username}, API version {api_version}"
+            f"Connecting to subsonic server on url {url} as user {username}, "
+            f"API version {api_version}"
         )
         try:
             self.connection.ping()
@@ -108,7 +110,7 @@ class SubsonicApi:
                 MAX_SEARCH_RESULTS if not exclude_songs else 0,
                 0,
             )
-        except Exception as e:
+        except Exception:
             logger.warning("Connecting to subsonic failed when searching.")
             return None
         if response.get("status") != RESPONSE_OK:
@@ -148,7 +150,7 @@ class SubsonicApi:
     def create_playlist_raw(self, name):
         try:
             response = self.connection.createPlaylist(name=name)
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when creating playlist."
             )
@@ -164,7 +166,7 @@ class SubsonicApi:
     def delete_playlist_raw(self, playlist_id):
         try:
             response = self.connection.deletePlaylist(playlist_id)
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when deleting playlist."
             )
@@ -182,7 +184,7 @@ class SubsonicApi:
             response = self.connection.createPlaylist(
                 playlist_id, songIds=song_ids
             )
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when creating playlist."
             )
@@ -198,7 +200,7 @@ class SubsonicApi:
     def get_raw_artists(self):
         try:
             response = self.connection.getArtists()
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading list of artists."
             )
@@ -225,7 +227,7 @@ class SubsonicApi:
     def get_raw_rootdirs(self):
         try:
             response = self.connection.getIndexes()
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading list of rootdirs."
             )
@@ -252,7 +254,7 @@ class SubsonicApi:
     def get_song_by_id(self, song_id):
         try:
             response = self.connection.getSong(song_id)
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading song by id."
             )
@@ -272,7 +274,7 @@ class SubsonicApi:
     def get_album_by_id(self, album_id):
         try:
             response = self.connection.getAlbum(album_id)
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading album by id."
             )
@@ -292,7 +294,7 @@ class SubsonicApi:
     def get_artist_by_id(self, artist_id):
         try:
             response = self.connection.getArtist(artist_id)
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading artist by id."
             )
@@ -312,7 +314,7 @@ class SubsonicApi:
     def get_raw_playlists(self):
         try:
             response = self.connection.getPlaylists()
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading list of playlists."
             )
@@ -334,7 +336,7 @@ class SubsonicApi:
     def get_raw_playlist(self, playlist_id):
         try:
             response = self.connection.getPlaylist(playlist_id)
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading playlist."
             )
@@ -350,7 +352,7 @@ class SubsonicApi:
     def get_raw_dir(self, parent_id):
         try:
             response = self.connection.getMusicDirectory(parent_id)
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when listing content of music directory."
             )
@@ -370,7 +372,7 @@ class SubsonicApi:
     def get_raw_albums(self, artist_id):
         try:
             response = self.connection.getArtist(artist_id)
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading list of albums."
             )
@@ -392,7 +394,7 @@ class SubsonicApi:
     def get_raw_songs(self, album_id):
         try:
             response = self.connection.getAlbum(album_id)
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading list of songs in album."
             )
@@ -411,7 +413,7 @@ class SubsonicApi:
     def get_raw_album_list(self, ltype, size=MAX_LIST_RESULTS):
         try:
             response = self.connection.getAlbumList2(ltype=ltype, size=size)
-        except Exception as e:
+        except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading album list."
             )
