@@ -1,10 +1,10 @@
-from urllib.parse import urlparse
-from urllib.parse import urlencode
-import libsonic
-import logging
 import itertools
-from mopidy.models import Track, Album, Artist, Playlist, Ref, SearchResult
+import logging
 import re
+from urllib.parse import urlencode, urlparse
+
+import libsonic
+from mopidy.models import Album, Artist, Playlist, Ref, SearchResult, Track
 from mopidy_subidy import uri
 
 logger = logging.getLogger(__name__)

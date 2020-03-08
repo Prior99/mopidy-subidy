@@ -1,8 +1,8 @@
+import logging
+
 from mopidy import backend, models
 from mopidy.models import Ref, SearchResult
 from mopidy_subidy import uri
-
-import logging
 
 logger = logging.getLogger(__name__)
 

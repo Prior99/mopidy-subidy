@@ -1,6 +1,6 @@
 import os
 
-from mopidy import ext, config
+from mopidy import config, ext
 
 __version__ = "0.2.1"
 

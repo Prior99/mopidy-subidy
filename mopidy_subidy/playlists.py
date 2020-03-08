@@ -1,8 +1,8 @@
-from mopidy import backend
-from mopidy_subidy import uri
-from mopidy.models import Playlist
-
 import logging
+
+from mopidy import backend
+from mopidy.models import Playlist
+from mopidy_subidy import uri
 
 logger = logging.getLogger(__name__)
 

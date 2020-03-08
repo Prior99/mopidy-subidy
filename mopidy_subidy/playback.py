@@ -1,6 +1,7 @@
+import logging
+
 from mopidy import backend
 from mopidy_subidy import uri
-import logging
 
 logger = logging.getLogger(__name__)
 
