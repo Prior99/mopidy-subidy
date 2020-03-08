@@ -1,24 +1,32 @@
 import re
 
-SONG = 'song'
-ARTIST = 'artist'
-PLAYLIST = 'playlist'
-ALBUM = 'album'
-DIRECTORY = 'directory'
-VDIR = 'vdir'
-PREFIX = 'subidy'
-SEARCH = 'search'
+SONG = "song"
+ARTIST = "artist"
+PLAYLIST = "playlist"
+ALBUM = "album"
+DIRECTORY = "directory"
+VDIR = "vdir"
+PREFIX = "subidy"
+SEARCH = "search"
 
-regex = re.compile(r'(\w+?):(\w+?)(?::|$)(.+?)?$')
+regex = re.compile(r"(\w+?):(\w+?)(?::|$)(.+?)?$")
+
 
 def is_type_result_valid(result):
     return result is not None and result.group(1) == PREFIX
 
+
 def is_id_result_valid(result, type):
-    return is_type_result_valid(result) and result.group(1) == PREFIX and result.group(2) == type
+    return (
+        is_type_result_valid(result)
+        and result.group(1) == PREFIX
+        and result.group(2) == type
+    )
+
 
 def is_uri(uri):
     return regex.match(uri) is not None
+
 
 def get_song_id(uri):
     result = regex.match(uri)
@@ -26,11 +34,13 @@ def get_song_id(uri):
         return None
     return result.group(3)
 
+
 def get_artist_id(uri):
     result = regex.match(uri)
     if not is_id_result_valid(result, ARTIST):
         return None
     return result.group(3)
+
 
 def get_playlist_id(uri):
     result = regex.match(uri)
@@ -38,11 +48,13 @@ def get_playlist_id(uri):
         return None
     return result.group(3)
 
+
 def get_album_id(uri):
     result = regex.match(uri)
     if not is_id_result_valid(result, ALBUM):
         return None
     return result.group(3)
+
 
 def get_directory_id(uri):
     result = regex.match(uri)
@@ -50,11 +62,13 @@ def get_directory_id(uri):
         return None
     return result.group(3)
 
+
 def get_vdir_id(uri):
     result = regex.match(uri)
     if not is_id_result_valid(result, VDIR):
         return None
     return result.group(3)
+
 
 def get_type(uri):
     result = regex.match(uri)
@@ -62,26 +76,34 @@ def get_type(uri):
         return None
     return result.group(2)
 
+
 def get_type_uri(type, id):
-    return f'{PREFIX}:{type}:{id}'
+    return f"{PREFIX}:{type}:{id}"
+
 
 def get_artist_uri(id):
     return get_type_uri(ARTIST, id)
 
+
 def get_album_uri(id):
     return get_type_uri(ALBUM, id)
+
 
 def get_song_uri(id):
     return get_type_uri(SONG, id)
 
+
 def get_directory_uri(id):
     return get_type_uri(DIRECTORY, id)
+
 
 def get_vdir_uri(id):
     return get_type_uri(VDIR, id)
 
+
 def get_playlist_uri(id):
     return get_type_uri(PLAYLIST, id)
+
 
 def get_search_uri(query):
     return get_type_uri(SEARCH, query)

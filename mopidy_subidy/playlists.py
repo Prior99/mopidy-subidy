@@ -3,7 +3,9 @@ from mopidy_subidy import uri
 from mopidy.models import Playlist
 
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 class SubidyPlaylistsProvider(backend.PlaylistsProvider):
     def __init__(self, *args, **kwargs):
@@ -19,7 +21,7 @@ class SubidyPlaylistsProvider(backend.PlaylistsProvider):
         result = self.subsonic_api.create_playlist_raw(name)
         if result is None:
             return None
-        playlist = result.get('playlist')
+        playlist = result.get("playlist")
         if playlist is None:
             for pl in self.subsonic_api.get_playlists_as_playlists():
                 if pl.name == name:
@@ -33,12 +35,16 @@ class SubidyPlaylistsProvider(backend.PlaylistsProvider):
         self.subsonic_api.delete_playlist_raw(playlist_id)
 
     def get_items(self, items_uri):
-        #logger.info('ITEMS %s: %s' % (lookup_uri, self.subsonic_api.get_playlist_songs_as_refs(uri.get_playlist_id(items_uri))))
-        return self.subsonic_api.get_playlist_as_songs_as_refs(uri.get_playlist_id(items_uri))
+        # logger.info('ITEMS %s: %s' % (lookup_uri, self.subsonic_api.get_playlist_songs_as_refs(uri.get_playlist_id(items_uri))))
+        return self.subsonic_api.get_playlist_as_songs_as_refs(
+            uri.get_playlist_id(items_uri)
+        )
 
     def lookup(self, lookup_uri):
-        #logger.info('LOOKUP PLAYLIST %s: %s' % (lookup_uri, self.subsonic_api.get_playlist_as_playlist(uri.get_playlist_id(lookup_uri))))
-        return self.subsonic_api.get_playlist_as_playlist(uri.get_playlist_id(lookup_uri))
+        # logger.info('LOOKUP PLAYLIST %s: %s' % (lookup_uri, self.subsonic_api.get_playlist_as_playlist(uri.get_playlist_id(lookup_uri))))
+        return self.subsonic_api.get_playlist_as_playlist(
+            uri.get_playlist_id(lookup_uri)
+        )
 
     def refresh(self):
         pass
