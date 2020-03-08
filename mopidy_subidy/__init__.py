@@ -1,8 +1,10 @@
 import pathlib
 
+import pkg_resources
+
 from mopidy import config, ext
 
-__version__ = "0.2.1"
+__version__ = pkg_resources.get_distribution("Mopidy-Subidy").version
 
 
 class SubidyExtension(ext.Extension):
