@@ -1,12 +1,14 @@
+import logging
+
 from mopidy import backend
 from mopidy_subidy import uri
-import logging
 
 logger = logging.getLogger(__name__)
 
+
 class SubidyPlaybackProvider(backend.PlaybackProvider):
     def __init__(self, *args, **kwargs):
-        super(SubidyPlaybackProvider, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.subsonic_api = self.backend.subsonic_api
 
     def translate_uri(self, translate_uri):
