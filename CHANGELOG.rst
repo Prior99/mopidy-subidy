@@ -3,7 +3,7 @@ Changelog
 *********
 
 
-v1.0.0 (UNRELEASED)
+v1.0.0 (2020-03-13)
 ===================
 
 - Require Mopidy 3.0 or newer.
