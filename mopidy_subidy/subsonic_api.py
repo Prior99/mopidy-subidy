@@ -412,7 +412,9 @@ class SubsonicApi:
 
     def get_more_albums(self, ltype, size=MAX_LIST_RESULTS, offset=0):
         try:
-            response = self.connection.getAlbumList2(ltype=ltype, size=size, offset=offset)
+            response = self.connection.getAlbumList2(
+                ltype=ltype, size=size, offset=offset
+            )
         except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading album list."
