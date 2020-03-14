@@ -410,9 +410,9 @@ class SubsonicApi:
             return songs
         return []
 
-    def get_raw_album_list(self, ltype, size=MAX_LIST_RESULTS):
+    def get_more_albums(self, ltype, size=MAX_LIST_RESULTS, offset=0):
         try:
-            response = self.connection.getAlbumList2(ltype=ltype, size=size)
+            response = self.connection.getAlbumList2(ltype=ltype, size=size, offset=offset)
         except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading album list."
@@ -428,6 +428,18 @@ class SubsonicApi:
         if albums is not None:
             return albums
         return []
+
+    def get_raw_album_list(self, ltype, size=MAX_LIST_RESULTS):
+        offset = 0
+        total = []
+        albums = self.get_more_albums(ltype, size, offset)
+        total = albums
+        while len(albums) == size:
+            # try getting more albums
+            offset = offset + size
+            albums = self.get_more_albums(ltype, size, offset)
+            total = total + albums
+        return total
 
     def get_albums_as_refs(self, artist_id=None):
         albums = (
