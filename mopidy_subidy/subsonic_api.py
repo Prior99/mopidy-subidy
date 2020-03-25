@@ -432,12 +432,18 @@ class SubsonicApi:
         return []
 
     def get_raw_album_list(self, ltype, size=MAX_LIST_RESULTS):
+        """
+        Subsonic servers don't offer any way to retrieve the total number
+        of albums to get, and the spec states that the max number returned
+        for `getAlbumList2` is 500.  To get all the albums, we make a
+        `getAlbumList2` request each time the response contains 500 albums. If
+        it does not, we assume we have all the albums and return them.
+        """
         offset = 0
         total = []
         albums = self.get_more_albums(ltype, size, offset)
         total = albums
         while len(albums) == size:
-            # try getting more albums
             offset = offset + size
             albums = self.get_more_albums(ltype, size, offset)
             total = total + albums
