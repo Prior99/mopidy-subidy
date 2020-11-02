@@ -138,31 +138,30 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return SearchResult(tracks=[track])
 
     def search_by_artist_and_album(self, artist_name, album_name):
-        artists = self.subsonic_api.get_raw_artists()
-        artist = next(
-            item for item in artists if artist_name in item.get("name")
-        )
-        albums = self.subsonic_api.get_raw_albums(artist.get("id"))
-        album = next(item for item in albums if album_name in item.get("title"))
-        return SearchResult(
-            tracks=self.subsonic_api.get_songs_as_tracks(album.get("id"))
-        )
+        artists = self.subsonic_api.find_raw(artist_name).get("artist")
+        if artists is None:
+            return None
+        tracks = []
+        for artist in artists:
+            for album in self.subsonic_api.get_raw_albums(artist.get("id")):
+                if album_name in album.get("name"):
+                    tracks.extend(
+                        self.subsonic_api.get_songs_as_tracks(album.get("id"))
+                    )
+        return SearchResult(tracks=tracks)
 
-    def search_by_artist(self, artist_search):
-        result = self.subsonic_api.find_raw(artist_search)
+    def search_by_artist(self, artist_name):
+        result = self.subsonic_api.find_raw(artist_name)
         if result is None:
             return None
-
         tracks = []
         for artist in result.get("artist"):
-            albums = self.subsonic_api.get_raw_albums(artist.get("id"))
-            for album in albums:
-                tracks.extend(
-                    self.subsonic_api.get_songs_as_tracks(album.get("id"))
+            tracks.extend(
+                self.subsonic_api.get_artist_as_songs_as_tracks_iter(
+                    artist.get("id")
                 )
-        return SearchResult(
-            uri=uri.get_search_uri(artist_search), tracks=tracks
-        )
+            )
+        return SearchResult(uri=uri.get_search_uri(artist_name), tracks=tracks)
 
     def get_distinct(self, field, query):
         search_result = self.search(query)
