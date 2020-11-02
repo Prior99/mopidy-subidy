@@ -93,6 +93,7 @@ class SubsonicApi:
     def get_censored_song_stream_uri(self, song_id):
         return self.get_subsonic_uri("stream", dict(id=song_id), True)
 
+
     def find_raw(
         self,
         query,
@@ -120,6 +121,34 @@ class SubsonicApi:
             )
             return None
         return response.get("searchResult2")
+
+    def find_artist_as_search_result (
+        self,
+        artist_search
+    ):
+        result = self.find_raw(artist_search)
+        if result is None:
+            return None
+        return SearchResult(
+            uri=uri.get_search_uri(artist_search),
+            artists=[
+                self.raw_artist_to_artist(artist) 
+                for artist in result.get("artist")  or []
+                if artist_search.casefold() in artist.get("name").casefold()
+                
+            ],
+            albums=[
+                self.raw_album_to_album(album)
+                for album in result.get("album") or []
+                if artist_search.casefold() in album.get("artist").casefold()
+            ],
+            tracks=[
+                self.raw_song_to_track(song)
+                for song in result.get("song") or []
+                if artist_search.casefold() in song.get("artist").casefold()
+            ],
+        )
+
 
     def find_as_search_result(
         self,

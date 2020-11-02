@@ -147,6 +147,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return SearchResult(
             tracks=self.subsonic_api.get_songs_as_tracks(album.get("id"))
         )
+    
 
     def get_distinct(self, field, query):
         search_result = self.search(query)
@@ -173,7 +174,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
                 query.get("artist")[0], query.get("album")[0]
             )
         if "artist" in query:
-            return self.subsonic_api.find_as_search_result(
+            return self.subsonic_api.find_artist_as_search_result(
                 query.get("artist")[0]
             )
         if "any" in query:
