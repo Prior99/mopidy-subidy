@@ -121,10 +121,7 @@ class SubsonicApi:
             return None
         return response.get("searchResult2")
 
-    def find_artist_as_search_result(
-        self,
-        artist_search
-    ):
+    def find_artist_as_search_result(self, artist_search):
         result = self.find_raw(artist_search)
         if result is None:
             return None
