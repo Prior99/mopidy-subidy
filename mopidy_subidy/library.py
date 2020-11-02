@@ -150,12 +150,16 @@ class SubidyLibraryProvider(backend.LibraryProvider):
                     )
         return SearchResult(tracks=tracks)
 
-    def search_by_artist(self, artist_name):
+    def search_by_artist(self, artist_name,exact):
         result = self.subsonic_api.find_raw(artist_name)
         if result is None:
             return None
         tracks = []
         for artist in result.get("artist"):
+            if exact:
+                if not artist.get("name") == artist_name:
+                    continue
+
             tracks.extend(
                 self.subsonic_api.get_artist_as_songs_as_tracks_iter(
                     artist.get("id")
@@ -188,7 +192,8 @@ class SubidyLibraryProvider(backend.LibraryProvider):
                 query.get("artist")[0], query.get("album")[0]
             )
         if "artist" in query:
-            return self.search_by_artist(query.get("artist")[0])
+            return self.search_by_artist(query.get("artist")[0],
+                exact)
         if "any" in query:
             return self.subsonic_api.find_as_search_result(query.get("any")[0])
         return SearchResult(artists=self.subsonic_api.get_artists_as_artists())
