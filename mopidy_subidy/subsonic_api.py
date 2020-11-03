@@ -410,6 +410,25 @@ class SubsonicApi:
             return songs
         return []
 
+    def get_raw_random_song(self, size=MAX_LIST_RESULTS):
+        try:
+            response = self.connection.getRandomSongs(size)
+        except Exception:
+            logger.warning(
+                "Connecting to subsonic failed when loading list of songs in album."
+            )
+            return []
+        if response.get("status") != RESPONSE_OK:
+            logger.warning(
+                "Got non-okay status code from subsonic: %s"
+                % response.get("status")
+            )
+            return []
+        songs = response.get("randomSongs").get("song")
+        if songs is not None:
+            return songs
+        return []
+
     def get_raw_album_list(self, ltype, size=MAX_LIST_RESULTS):
         try:
             response = self.connection.getAlbumList2(ltype=ltype, size=size)
@@ -473,6 +492,17 @@ class SubsonicApi:
                 else self.raw_song_to_ref(diritem)
             )
             for diritem in self.get_raw_dir(directory_id)
+        ]
+
+    def get_random_songs_as_refs(self):
+        return [
+            self.raw_song_to_ref(song) for song in self.get_raw_random_song(75)
+        ]
+
+    def get_random_songs_as_tracks(self):
+        return [
+            self.raw_song_to_track(song)
+            for song in self.get_raw_random_song(MAX_LIST_RESULTS)
         ]
 
     def get_artists_as_artists(self):

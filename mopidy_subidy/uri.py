@@ -8,6 +8,7 @@ DIRECTORY = "directory"
 VDIR = "vdir"
 PREFIX = "subidy"
 SEARCH = "search"
+RANDOM = "random"
 
 regex = re.compile(r"(\w+?):(\w+?)(?::|$)(.+?)?$")
 
