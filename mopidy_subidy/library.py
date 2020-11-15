@@ -14,6 +14,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             dict(id="artists", name="Artists"),
             dict(id="albums", name="Albums"),
             dict(id="rootdirs", name="Directories"),
+            dict(id="random", name="Random"),
         ]
         # Create a dict with the keys being the `id`s in `vdir_templates`
         # and the values being objects containing the vdir `id`,
@@ -52,6 +53,9 @@ class SubidyLibraryProvider(backend.LibraryProvider):
     def browse_rootdirs(self):
         return self.subsonic_api.get_rootdirs_as_refs()
 
+    def browse_random_songs(self):
+        return self.subsonic_api.get_random_songs_as_refs()
+
     def browse_diritems(self, directory_id):
         return self.subsonic_api.get_diritems_as_refs(directory_id)
 
@@ -82,7 +86,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
 
     def browse(self, browse_uri):
         if browse_uri == uri.get_vdir_uri("root"):
-            root_vdir_names = ["rootdirs", "artists", "albums"]
+            root_vdir_names = ["rootdirs", "artists", "albums", "random"]
             root_vdirs = [
                 self._vdirs[vdir_name] for vdir_name in root_vdir_names
             ]
@@ -96,6 +100,9 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             return self.browse_artists()
         elif browse_uri == uri.get_vdir_uri("albums"):
             return self.browse_albums()
+        elif browse_uri == uri.get_vdir_uri("random"):
+            return self.browse_random_songs()
+
         else:
             uri_type = uri.get_type(browse_uri)
             if uri_type == uri.DIRECTORY:
@@ -193,6 +200,11 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             )
         if "artist" in query:
             return self.search_by_artist(query.get("artist")[0], exact)
+        if "comment" in query:
+            if query.get("comment")[0] == "random":
+                return SearchResult(
+                    tracks=self.subsonic_api.get_random_songs_as_tracks()
+                )
         if "any" in query:
             return self.subsonic_api.find_as_search_result(query.get("any")[0])
         return SearchResult(artists=self.subsonic_api.get_artists_as_artists())
