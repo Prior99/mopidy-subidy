@@ -415,7 +415,7 @@ class SubsonicApi:
             response = self.connection.getRandomSongs(size)
         except Exception:
             logger.warning(
-                "Connecting to subsonic failed when loading list of songs in album."
+                "Connecting to subsonic failed when loading ramdom song list."
             )
             return []
         if response.get("status") != RESPONSE_OK:
