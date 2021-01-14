@@ -502,7 +502,7 @@ class SubsonicApi:
     def get_random_songs_as_tracks(self):
         return [
             self.raw_song_to_track(song)
-            for song in self.get_raw_random_song(MAX_LIST_RESULTS)
+            for song in self.get_raw_random_song()
         ]
 
     def get_artists_as_artists(self):
