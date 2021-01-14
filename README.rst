@@ -14,6 +14,8 @@ Mopidy-Subidy
     :target: https://codecov.io/gh/Prior99/mopidy-subidy
     :alt: Test coverage
 
+**This library is actively looking for maintainers to help out as I do not have the time or need to maintain this anymore. Please contact me if you feel that you could maintain this.**
+
 A Subsonic backend for Mopidy using `py-sonic
 <https://github.com/crustymonkey/py-sonic>`_.
 
