@@ -44,6 +44,7 @@ class SubsonicApi:
     def __init__(
         self, url, username, password, app_name, legacy_auth, api_version
     ):
+        url = url.rstrip('/')
         parsed = urlparse(url)
         self.port = (
             parsed.port
