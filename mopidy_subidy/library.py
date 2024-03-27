@@ -1,7 +1,7 @@
 import logging
 
 from mopidy import backend
-from mopidy.models import Ref, SearchResult
+from mopidy.models import Image, Ref, SearchResult
 from mopidy_subidy import uri
 
 logger = logging.getLogger(__name__)
@@ -208,3 +208,12 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         if "any" in query:
             return self.subsonic_api.find_as_search_result(query.get("any")[0])
         return SearchResult(artists=self.subsonic_api.get_artists_as_artists())
+
+    def get_images(self, uris):
+        images = {}
+        for uri in uris:
+            if uri.startswith("subidy:album:"):
+                images[uri] = [Image(uri=f"/subidy/coverart/2{uri[14:]}")]
+            elif uri.startswith("subidy:song:"):
+                images[uri] = [Image(uri=f"/subidy/coverart/3{uri[13:]}")]
+        return images

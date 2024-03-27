@@ -27,5 +27,10 @@ class SubidyExtension(ext.Extension):
 
     def setup(self, registry):
         from .backend import SubidyBackend
+        from .web import image_proxy_factory
 
         registry.add("backend", SubidyBackend)
+        registry.add("http:app", {
+            "name": self.ext_name,
+            "factory": image_proxy_factory,
+        })
